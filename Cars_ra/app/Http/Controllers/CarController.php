@@ -78,38 +78,46 @@ class CarController extends Controller
     // add cars and store it
     public function store(Request $request)
     {
-        //verify the input
-        $validator = Validator::make($request->all(), [
-            'model' => 'required|string|max:255',
-            'year' => 'required|integer',
-            'color' => 'required|string|max:50',
-            'features' => 'nullable|string',
-            'seats' => 'required|integer',
-            'status' => 'required|string',
-            'location' => 'required|string|max:255',
-            'daily_price' => 'required|numeric',
-            'image' => 'nullable|url',
-        ]);
+        if (auth()->user()->roles->contains('name', 'Admin')) {
+            $validator = Validator::make($request->all(), [
+                'model' => 'required|string|max:255',
+                'year' => 'required|integer',
+                'color' => 'required|string|max:50',
+                'features' => 'nullable|string',
+                'seats' => 'required|integer',
+                'status' => 'required|string',
+                'location' => 'required|string|max:255',
+                'daily_price' => 'required|numeric',
+                'image' => 'nullable|url',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'البيانات المدخلة غير صحيحة',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            $car = Car::create($request->all());
+
             return response()->json([
-                'message' => 'البيانات المدخلة غير صحيحة',
-                'errors' => $validator->errors(),
-            ], 422);
+                'message' => 'تم إضافة السيارة بنجاح',
+                'car' => $car
+            ], 201);
+        } else {
+            return response()->json([
+                'message' => 'ليس لديك صلاحية لإضافة سيارة.',
+            ], 403);
         }
+        //  تحقق من صحة البيانات
 
-        $car = Car::create($request->all());
-
-        return response()->json([
-            'message' => 'تم إضافة السيارة بنجاح',
-            'car' => $car
-        ], 201);
     }
 
 
     // update information car
     public function update(Request $request, $id)
     {
+        if (auth()->user()->roles->contains('name', 'Empolyee')) {
         $car = Car::findOrFail($id);
 
         $car->update($request->all());
@@ -118,6 +126,12 @@ class CarController extends Controller
             'message' => 'تم تحديث السيارة بنجاح',
             'car' => $car
         ]);
+        }
+        else {
+            return response()->json([
+                'message' => 'ليس لديك صلاحية لإضافة سيارة.',
+            ], 403);
+        }
     }
 
 

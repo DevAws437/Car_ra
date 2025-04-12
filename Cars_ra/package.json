@@ -15,7 +15,7 @@
         "@tailwindcss/typography": "^0.5.0",
         "alpinejs": "^3.0.6",
         "autoprefixer": "^10.4.7",
-        "axios": "^0.25.0",
+        "axios": "^1.8.4",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "postcss": "^8.4.14",
@@ -23,6 +23,7 @@
     },
     "dependencies": {
         "@types/pusher-js": "^5.1.0",
+        "firebase": "^11.6.0",
         "pusher-js": "^8.4.0-rc2"
     }
 }

@@ -5,24 +5,29 @@ use Illuminate\Support\Facades\Http;
 
 class FirebaseService
 {
-    protected $url = 'https://fcm.googleapis.com/fcm/send';
-
-    public function sendNotification($token, $title, $body, $data = [])
+    // دالة لإرسال الإشعار إلى Firebase
+    public function sendNotification($deviceToken, $title, $message)
     {
-        $serverKey = config('services.fcm.server_key');
+        $url = 'https://fcm.googleapis.com/fcm/send';
 
-        $response = Http::withHeaders([
-            'Authorization' => 'key=' . $serverKey,
+        $headers = [
+            'Authorization' => 'key=' . env('FIREBASE_SERVER_KEY'),
             'Content-Type' => 'application/json',
-        ])->post($this->url, [
-            'to' => $token,
-            'notification' => [
-                'title' => $title,
-                'body' => $body,
-                'sound' => 'default',
+        ];
+
+        $data = [
+            "to" => $deviceToken,  // التوكن الخاص بالجهاز (يتم الحصول عليه من التطبيق)
+            "notification" => [
+                "title" => $title,
+                "body" => $message,
+                "sound" => "default",
             ],
-            'data' => $data,
-        ]);
+            "priority" => "high",
+            "content_available" => true,
+        ];
+
+        $response = Http::withHeaders($headers)
+                        ->post($url, $data);
 
         return $response->json();
     }

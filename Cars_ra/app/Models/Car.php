@@ -28,6 +28,12 @@ class Car extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function discounts()
+{
+    return $this->hasMany(Discount::class);
+}
+
+
     // Relationship with the reviews
     public function reviews()
     {

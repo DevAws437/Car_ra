@@ -188,4 +188,61 @@ public function deleteUser($user_id)
     ], 200); // Status code 200: OK
 }
 
+////////////////// اضافة موظف //////////////////
+
+public function storeEmployee(Request $request)
+{
+    if (auth()->user()->roles->contains('name', 'Admin')) {
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string|max:255',
+            'license_number' => 'required|string|max:50',
+            'license_image' => 'nullable|url',
+            'role' => 'required|string|in:user,Employee', // حدد الأدوار المسموح فيها فقط
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'البيانات المدخلة غير صحيحة',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        try {
+            $employee = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'license_number' => $request->license_number,
+                'license_image' => $request->license_image,
+            ]);
+
+            // تعيين الدور حسب الطلب
+            $employee->assignRole($request->role);
+
+            return response()->json([
+                'message' => 'تم إنشاء الموظف بنجاح',
+                'user' => $employee,
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'حدث خطأ أثناء إنشاء الموظف.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    } else {
+        return response()->json([
+            'message' => 'أنت غير مخول لتنفيذ هذا الإجراء.',
+        ], 403);
+    }
+
+}
+
 }

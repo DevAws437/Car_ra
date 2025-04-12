@@ -11,6 +11,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DiscountController;
 
 
 
@@ -40,6 +41,10 @@ Route::post('login', [AuthController::class, 'login']);
 // Route for logout
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
+
+Route::middleware(['auth:sanctum', 'role:Admin'])->group(function () {
+    Route::post ('/employees', [AuthController::class, 'storeEmployee']);
+});
 
 /////////////////// Admin ///////////////////
 
@@ -84,11 +89,18 @@ Route::get('/cars', [CarController::class, 'index']);
 Route::get('/cars/{id}', [CarController::class, 'show']);
 
 //Route add cars
-Route::post('/cars', [CarController::class, 'store']);
+Route::middleware(['auth:sanctum', 'role:Admin'])->group(function () {
+    Route::post('/cars', [CarController::class, 'store']);
+});
 
 //Route update cars
+Route::middleware(['auth:sanctum', 'role:Admin'])->group(function () {
 Route::put('/cars/{id}', [CarController::class, 'update']);
+});
 
+Route::middleware(['auth:sanctum', 'role:Empolyee'])->group(function () {
+    Route::put('/cars/{id}', [CarController::class, 'update']);
+    });
 //Route Delete cars
 Route::delete('/cars/{id}', [CarController::class, 'destroy']);
 
@@ -155,3 +167,17 @@ Route::post('/categories', [CategoryController::class, 'store']);
 Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
+
+
+
+
+Route::get('/discount', [DiscountController::class, 'index']);
+Route::post('/discount', [DiscountController::class, 'store']);
+Route::put('/discount/{id}', [DiscountController::class, 'update']);
+Route::delete('/discount/{id}', [DiscountController::class, 'destroy']);
+Route::get('/discount/{id}', [DiscountController::class, 'show']);
+
+use App\Http\Controllers\NotificationController;
+
+Route::post('/send-notification', [NotificationController::class, 'sendNotification']);
